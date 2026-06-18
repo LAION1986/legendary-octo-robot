@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 import os
 import requests
@@ -6,7 +5,7 @@ import requests
 app = Flask(__name__)
 
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN")
-WHATSAPP_TOKEN = os.environ.get("WHATSAPP_TOKEN") 
+WHATSAPP_TOKEN = os.environ.get("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID")
 
 @app.route('/', methods=['GET'])
@@ -17,7 +16,6 @@ def home():
 def health():
     return jsonify({"status":"saudavel"}), 200
 
-# ROTA NOVA DO WEBHOOK WHATSAPP
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
@@ -25,7 +23,7 @@ def webhook():
         challenge = request.args.get('hub.challenge')
         if token == VERIFY_TOKEN:
             return challenge, 200
-        return 'Token inválido', 403
+        return 'Token invalido', 403
     
     if request.method == 'POST':
         data = request.get_json()
