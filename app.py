@@ -1,45 +1,39 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
+import os
+import requests
 
 app = Flask(__name__)
 
-# Rota 1: Página inicial (/) - Essencial para o teste do Render
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN")
+WHATSAPP_TOKEN = os.environ.get("WHATSAPP_TOKEN") 
+PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID")
+
 @app.route('/', methods=['GET'])
 def home():
-    """Página inicial da API."""
-    return jsonify({"message": "API do Robô Lendário está online!"})
+    return jsonify({"mensagem":"API do Robô Lendário está online!"})
 
-# Rota 2: Verificação de Saúde (/health) - Outra rota comum para testes
 @app.route('/health', methods=['GET'])
-def health_check():
-    """Rota de verificação de saúde para a plataforma de deploy."""
-    return jsonify({"status": "healthy"}), 200
+def health():
+    return jsonify({"status":"saudavel"}), 200
 
-# Rota 3: Obter dados (/data) - Conforme seu README
-@app.route('/data', methods=['GET'])
-def get_data():
-    """Exemplo de uma rota que retorna dados."""
-    sample_data = {
-        "id": 123,
-        "name": "Legendary Octo Robot",
-        "owner": "Dêleon"
-    }
-    return jsonify(sample_data)
+# ROTA NOVA DO WEBHOOK WHATSAPP
+@app.route('/webhook', methods=['GET', 'POST'])
+def webhook():
+    if request.method == 'GET':
+        token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
+        if token == VERIFY_TOKEN:
+            return challenge, 200
+        return 'Token inválido', 403
+    
+    if request.method == 'POST':
+        data = request.get_json()
+        print("Dados WhatsApp:", data)
+        return 'EVENT_RECEIVED', 200
 
-# Rota 4: Echo (/api/echo) - Conforme seu README
-@app.route('/api/echo', methods=['POST'])
-def echo():
-    """Retorna o mesmo JSON que foi enviado no corpo da requisição."""
-    if not request.is_json:
-        return jsonify({"error": "A requisição deve ser do tipo JSON"}), 400
-    data = request.get_json()
-    return jsonify(data)
-
-# Rota 5: Sua rota original (/robot)
 @app.route('/robot', methods=['GET'])
 def robot():
-    """Rota original do robô."""
-    return jsonify({"status": "Robô lendário online"})
+    return jsonify({"status":"Robô lendário online"})
 
-# Bloco para permitir execução local (boa prática)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
